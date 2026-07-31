@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "immanueltikhonov.droast",
+    "inferrinizzard.prettier-sql-vscode",
+    "ms-azuretools.vscode-docker",
+    "ms-vscode-remote.remote-containers",
+    "Orta.vscode-jest",
+    "Prisma.prisma",
+    "SonarSource.sonarlint-vscode",
+    "tamasfe.even-better-toml",
+  ],
+}
