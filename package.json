@@ -2,6 +2,9 @@
   "name": "base64-js",
   "version": "1.0.0",
   "author": "neryuuk@neryuuk.com",
+  "repository": {
+    "url": "https://github.com/neryuuk/base64-js"
+  },
   "license": "AGPL-3.0-only",
   "main": "./src/index.js",
   "type": "module",
