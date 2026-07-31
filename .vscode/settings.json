@@ -1,0 +1,40 @@
+{
+  "[dockercompose,json,jsonc,markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[dockerfile]": {
+    "editor.tabSize": 4
+  },
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "inferrinizzard.prettier-sql-vscode",
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "debug.javascript.autoAttachFilter": "onlyWithFlag",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always",
+    "source.organizeImports": "always",
+    "source.sortImports": "always"
+  },
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+  "editor.formatOnPaste": true,
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": true,
+  "editor.renderFinalNewline": "on",
+  "editor.renderWhitespace": "all",
+  "editor.tabSize": 2,
+  "eslint.codeActionsOnSave.mode": "all",
+  "eslint.enable": true,
+  "files.eol": "\n",
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "git.autofetch": true,
+  "js/ts.tsdk.path": "node_modules/typescript/lib",
+  "Prettier-SQL.SQLFlavourOverride": "postgresql",
+}
