@@ -29,4 +29,4 @@ decodeBase64('base64');
 License
 ---
 
-GNU AFFERO GENERAL PUBLIC LICENSE
+[AGPL-3.0](./LICENSE)
