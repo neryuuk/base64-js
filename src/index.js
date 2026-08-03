@@ -1,16 +1,30 @@
 const BASE64_DICT = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/`;
 const URI_SAFE_DICT = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`;
 
-function parse24bits(bytes) {
-  return (
-    ((bytes[0] ?? 0) << (8 * 2)) +
-    ((bytes[1] ?? 0) << (8 * 1)) +
-    ((bytes[2] ?? 0) << (8 * 0))
-  );
+function parse24bits(bytes, bits = 8) {
+  if (bits === 8) {
+    return (
+      ((bytes[0] ?? 0) << (bits * 2)) +
+      ((bytes[1] ?? 0) << (bits * 1)) +
+      ((bytes[2] ?? 0) << (bits * 0))
+    );
+  }
+  if (bits === 6) {
+    return (
+      ((bytes[0] ?? 0) << (bits * 3)) +
+      ((bytes[1] ?? 0) << (bits * 2)) +
+      ((bytes[2] ?? 0) << (bits * 1)) +
+      ((bytes[3] ?? 0) << (bits * 0))
+    );
+  }
 }
 
 function bitSplit(bits, count, offset) {
-  return (bits >> (count * offset)) & 0b111111;
+  return bits >> (count * offset);
+}
+
+function and6bit(bits, offset) {
+  return bitSplit(bits, 6, offset) & 0b111111;
 }
 
 function decodeBase64(payload) {
@@ -60,25 +74,23 @@ function encodeBase64(payload, safe = false) {
   for (let i = 0; i < buff.length; i++) {
     block.push(buff[i]);
     if (block.length < 3) continue;
+
     const bits = parse24bits(block);
-    encoded += DICT[bitSplit(bits, 6, 3)];
-    encoded += DICT[bitSplit(bits, 6, 2)];
-    encoded += DICT[bitSplit(bits, 6, 1)];
-    encoded += DICT[bitSplit(bits, 6, 0)];
+    encoded += DICT[and6bit(bits, 3)];
+    encoded += DICT[and6bit(bits, 2)];
+    encoded += DICT[and6bit(bits, 1)];
+    encoded += DICT[and6bit(bits, 0)];
     block.pop();
     block.pop();
     block.pop();
   }
 
   if (block.length) {
-    let drain = '';
     const bits = parse24bits(block);
+    let drain = DICT[and6bit(bits, 3)] + DICT[and6bit(bits, 2)];
 
-    if (block.length) {
-      drain += DICT[bitSplit(bits, 6, 3)] + DICT[bitSplit(bits, 6, 2)];
-    }
-    if (block.length > 1) drain += DICT[bitSplit(bits, 6, 1)];
-    if (block.length > 2) drain += DICT[bitSplit(bits, 6, 0)];
+    if (block.length > 1) drain += DICT[and6bit(bits, 1)];
+    if (block.length > 2) drain += DICT[and6bit(bits, 0)];
 
     encoded += safe ? drain : drain.padEnd(4, '=');
   }
