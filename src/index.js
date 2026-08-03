@@ -23,6 +23,10 @@ function bitSplit(bits, count, offset) {
   return bits >> (count * offset);
 }
 
+function and8bit(bits, offset) {
+  return bitSplit(bits, 8, offset) & 0b11111111;
+}
+
 function and6bit(bits, offset) {
   return bitSplit(bits, 6, offset) & 0b111111;
 }
@@ -65,6 +69,38 @@ function decodeBase64(payload, safe) {
   return decoded;
 }
 
+function decodeBase64bitwise(payload, safe) {
+  const DICT = safe ? URI_SAFE_DICT : BASE64_DICT;
+  const block = [];
+  let buff = Buffer.from(payload);
+  let decoded = '';
+
+  for (let i = 0; i < buff.length; i++) {
+    if (!safe && String.fromCharCode(buff[i]) === '=') continue;
+
+    block.push(DICT.indexOf(buff[i]));
+    if (block.length < 4) continue;
+
+    const bits = parse24bits(block, 6);
+    decoded += String.fromCharCode(and8bit(bits, 2));
+    decoded += String.fromCharCode(and8bit(bits, 1));
+    decoded += String.fromCharCode(and8bit(bits, 0));
+    block.pop();
+    block.pop();
+    block.pop();
+    block.pop();
+  }
+
+  if (block.length) {
+    const bits = parse24bits(block, 6);
+    decoded += String.fromCharCode(and8bit(bits, 2));
+    decoded += String.fromCharCode(and8bit(bits, 1));
+    decoded += String.fromCharCode(and8bit(bits, 0));
+  }
+
+  return decoded;
+}
+
 function encodeBase64(payload, safe = false) {
   const DICT = safe ? URI_SAFE_DICT : BASE64_DICT;
   const block = [];
@@ -98,4 +134,4 @@ function encodeBase64(payload, safe = false) {
   return encoded;
 }
 
-export { decodeBase64, encodeBase64 };
+export { decodeBase64, decodeBase64bitwise, encodeBase64 };

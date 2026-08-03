@@ -57,4 +57,18 @@ describe('decodeBase64', () => {
       nativeDecode(testString),
     );
   });
+
+  // it(`should decode '§498¨&*7q[{{ª+-_*&VFC%B*(N8765EV7*B\\|/?°='`, () => {
+  //   const testString = '§498¨&*7q[{{ª+-_*&VFC%B*(N8765EV7*B\\|/?°=';
+  //   expect(decodeBase64(nativeEncode(testString))).toBe(
+  //     nativeDecode(testString),
+  //   );
+  // });
+
+  // it(`should url-safe decode '§498¨&*7q[{{ª+-_*&VFC%B*(N8765EV7*B\\|/?°='`, () => {
+  //   const testString = '§498¨&*7q[{{ª+-_*&VFC%B*(N8765EV7*B\\|/?°=';
+  //   expect(decodeBase64(nativeEncode(testString, true))).toBe(
+  //     nativeDecode(testString, true),
+  //   );
+  // });
 });
