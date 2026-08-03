@@ -27,14 +27,14 @@ function and6bit(bits, offset) {
   return bitSplit(bits, 6, offset) & 0b111111;
 }
 
-function decodeBase64(payload) {
-  const DICT = BASE64_DICT;
+function decodeBase64(payload, safe) {
+  const DICT = safe ? URI_SAFE_DICT : BASE64_DICT;
   let block = '';
   let decoded = '';
 
   for (let i = 0; i < payload.length; i++) {
     const char = payload[i];
-    if (char === '=') continue;
+    if (!safe && char === '=') continue;
 
     block += DICT.indexOf(char).toString(2).padStart(6, '0');
     if (block.length < 24) continue;
