@@ -50,12 +50,12 @@ function decodeBase64(payload) {
 }
 
 function encodeBase64(payload) {
-  let uint = Array.from(new TextEncoder().encode(payload));
   const block = [];
+  let buff = Buffer.from(payload);
   let encoded = '';
 
-  for (let i = 0; i < uint.length; i++) {
-    block.push(uint[i]);
+  for (let i = 0; i < buff.length; i++) {
+    block.push(buff[i]);
     if (block.length < 3) continue;
     const bits = parse24bits(block);
     encoded += DICT[bitSplit(bits, 6, 3)];
