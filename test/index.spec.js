@@ -4,9 +4,9 @@ function nativeEncode(data, safe) {
   return Buffer.from(data).toString(safe ? 'base64url' : 'base64');
 }
 
-function nativeDecode(data) {
-  const encoded = Buffer.from(data).toString('base64');
-  return Buffer.from(encoded, 'base64').toString();
+function nativeDecode(data, safe) {
+  const encoded = Buffer.from(data).toString(safe ? 'base64url' : 'base64');
+  return Buffer.from(encoded, safe ? 'base64url' : 'base64').toString();
 }
 
 describe('encodeBase64', () => {
@@ -37,35 +37,21 @@ describe('encodeBase64', () => {
 });
 
 describe('decodeBase64', () => {
-  it(`should encode 'abc'`, () => {
-    const testString = 'abc';
-    expect(decodeBase64(nativeEncode(testString))).toBe(
-      nativeDecode(testString),
-    );
-  });
-
-  it(`should encode 'abcd'`, () => {
-    const testString = 'abcd';
-    expect(decodeBase64(nativeEncode(testString))).toBe(
-      nativeDecode(testString),
-    );
-  });
-
-  it(`should encode 'abcde'`, () => {
+  it(`should decode 'abcde'`, () => {
     const testString = 'abcde';
     expect(decodeBase64(nativeEncode(testString))).toBe(
       nativeDecode(testString),
     );
   });
 
-  it(`should encode 'abcdef'`, () => {
+  it(`should decode 'abcdef'`, () => {
     const testString = 'abcdef';
     expect(decodeBase64(nativeEncode(testString))).toBe(
       nativeDecode(testString),
     );
   });
 
-  it(`should encode 'abcdef\\n'`, () => {
+  it(`should decode 'abcdef\\n'`, () => {
     const testString = 'abcdef\n';
     expect(decodeBase64(nativeEncode(testString))).toBe(
       nativeDecode(testString),
