@@ -1,4 +1,5 @@
-const DICT = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/`;
+const BASE64_DICT = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/`;
+const URI_SAFE_DICT = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`;
 
 function parse24bits(bytes) {
   return (
@@ -13,6 +14,7 @@ function bitSplit(bits, count, offset) {
 }
 
 function decodeBase64(payload) {
+  const DICT = BASE64_DICT;
   let block = '';
   let decoded = '';
 
@@ -49,7 +51,8 @@ function decodeBase64(payload) {
   return decoded;
 }
 
-function encodeBase64(payload) {
+function encodeBase64(payload, safe = false) {
+  const DICT = safe ? URI_SAFE_DICT : BASE64_DICT;
   const block = [];
   let buff = Buffer.from(payload);
   let encoded = '';
@@ -77,7 +80,7 @@ function encodeBase64(payload) {
     if (block.length > 1) drain += DICT[bitSplit(bits, 6, 1)];
     if (block.length > 2) drain += DICT[bitSplit(bits, 6, 0)];
 
-    encoded += drain.padEnd(4, '=');
+    encoded += safe ? drain : drain.padEnd(4, '=');
   }
 
   return encoded;
