@@ -1,5 +1,13 @@
 const DICT = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/`;
 
+function parse24bits(bytes) {
+  return (
+    ((bytes[0] ?? 0) << (8 * 2)) +
+    ((bytes[1] ?? 0) << (8 * 1)) +
+    ((bytes[2] ?? 0) << (8 * 0))
+  );
+}
+
 function decodeBase64(payload) {
   let block = '';
   let decoded = '';
@@ -39,28 +47,31 @@ function decodeBase64(payload) {
 
 function encodeBase64(payload) {
   let uint = Array.from(new TextEncoder().encode(payload));
-  let block = '';
+  const block = [];
   let encoded = '';
 
   for (let i = 0; i < uint.length; i++) {
-    const byte = uint[i];
-    block += byte.toString(2).padStart(8, '0');
-    if (block.length < 24) continue;
-    const match = block.match(/.{6}/g);
-    encoded += DICT[parseInt(match[0], 2)];
-    encoded += DICT[parseInt(match[1], 2)];
-    encoded += DICT[parseInt(match[2], 2)];
-    encoded += DICT[parseInt(match[3], 2)];
-    block = '';
+    block.push(uint[i]);
+    if (block.length < 3) continue;
+    const bits = parse24bits(block);
+    encoded += DICT[(bits >> (6 * 3)) & 0b111111];
+    encoded += DICT[(bits >> (6 * 2)) & 0b111111];
+    encoded += DICT[(bits >> (6 * 1)) & 0b111111];
+    encoded += DICT[(bits >> (6 * 0)) & 0b111111];
+    block.pop();
+    block.pop();
+    block.pop();
   }
 
   if (block.length) {
     let drain = '';
-    const match = block.match(/.{1,6}/g);
-    if (match[0]) drain += DICT[parseInt(match[0].padEnd(6, '0'), 2)];
-    if (match[1]) drain += DICT[parseInt(match[1].padEnd(6, '0'), 2)];
-    if (match[2]) drain += DICT[parseInt(match[2].padEnd(6, '0'), 2)];
-    if (match[3]) drain += DICT[parseInt(match[3].padEnd(6, '0'), 2)];
+    const bits = parse24bits(block);
+
+    if (block.length) drain += DICT[(bits >> (6 * 3)) & 0b111111];
+    if (block.length) drain += DICT[(bits >> (6 * 2)) & 0b111111];
+    if (block.length > 1) drain += DICT[(bits >> (6 * 1)) & 0b111111];
+    if (block.length > 2) drain += DICT[(bits >> (6 * 0)) & 0b111111];
+
     encoded += drain.padEnd(4, '=');
   }
 
