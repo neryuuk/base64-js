@@ -8,6 +8,10 @@ function parse24bits(bytes) {
   );
 }
 
+function bitSplit(bits, count, offset) {
+  return (bits >> (count * offset)) & 0b111111;
+}
+
 function decodeBase64(payload) {
   let block = '';
   let decoded = '';
@@ -54,10 +58,10 @@ function encodeBase64(payload) {
     block.push(uint[i]);
     if (block.length < 3) continue;
     const bits = parse24bits(block);
-    encoded += DICT[(bits >> (6 * 3)) & 0b111111];
-    encoded += DICT[(bits >> (6 * 2)) & 0b111111];
-    encoded += DICT[(bits >> (6 * 1)) & 0b111111];
-    encoded += DICT[(bits >> (6 * 0)) & 0b111111];
+    encoded += DICT[bitSplit(bits, 6, 3)];
+    encoded += DICT[bitSplit(bits, 6, 2)];
+    encoded += DICT[bitSplit(bits, 6, 1)];
+    encoded += DICT[bitSplit(bits, 6, 0)];
     block.pop();
     block.pop();
     block.pop();
@@ -67,10 +71,11 @@ function encodeBase64(payload) {
     let drain = '';
     const bits = parse24bits(block);
 
-    if (block.length) drain += DICT[(bits >> (6 * 3)) & 0b111111];
-    if (block.length) drain += DICT[(bits >> (6 * 2)) & 0b111111];
-    if (block.length > 1) drain += DICT[(bits >> (6 * 1)) & 0b111111];
-    if (block.length > 2) drain += DICT[(bits >> (6 * 0)) & 0b111111];
+    if (block.length) {
+      drain += DICT[bitSplit(bits, 6, 3)] + DICT[bitSplit(bits, 6, 2)];
+    }
+    if (block.length > 1) drain += DICT[bitSplit(bits, 6, 1)];
+    if (block.length > 2) drain += DICT[bitSplit(bits, 6, 0)];
 
     encoded += drain.padEnd(4, '=');
   }
