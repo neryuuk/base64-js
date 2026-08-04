@@ -1,7 +1,7 @@
 const BASE64_DICT = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/`;
 const URI_SAFE_DICT = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`;
 
-function decodeBase64(payload, safe) {
+function decodeBase64old(payload, safe) {
   const DICT = safe ? URI_SAFE_DICT : BASE64_DICT;
   let block = '';
   let decoded = '';
@@ -39,7 +39,7 @@ function decodeBase64(payload, safe) {
   return decoded;
 }
 
-function decodeBase64bitwise(payload, safe) {
+function decodeBase64(payload, safe) {
   function parse24bits(bytes) {
     return (
       ((bytes[0] ?? 0) << (6 * 3)) +
@@ -124,4 +124,4 @@ function encodeBase64(payload, safe = false) {
   return encoded;
 }
 
-export { decodeBase64, decodeBase64bitwise, encodeBase64 };
+export { decodeBase64, decodeBase64old, encodeBase64 };
