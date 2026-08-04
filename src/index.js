@@ -40,13 +40,16 @@ function decodeBase64old(payload, safe) {
   return decoded;
 }
 
-function decodeBase64(payload, safe) {
+function decodeBase64(
+  payload,
+  { encoding: _, safe } = { encoding: 'utf8', safe: false },
+) {
   function parse24bits(bytes) {
     return (
-      ((bytes[0] ?? 0) << (6 * 3)) +
-      ((bytes[1] ?? 0) << (6 * 2)) +
-      ((bytes[2] ?? 0) << (6 * 1)) +
-      ((bytes[3] ?? 0) << (6 * 0))
+      ((bytes[0] & 0b111111) << (6 * 3)) +
+      ((bytes[1] & 0b111111) << (6 * 2)) +
+      ((bytes[2] & 0b111111) << (6 * 1)) +
+      ((bytes[3] & 0b111111) << (6 * 0))
     );
   }
 
