@@ -64,7 +64,7 @@ function decodeBase64(payload, safe) {
     block.push(DICT.indexOf(String.fromCharCode(buff[i])));
     if (block.length < 4) continue;
 
-    const bits = parse24bits(block, 6);
+    const bits = parse24bits(block);
     decoded += String.fromCharCode(bitSplit(bits, 2));
     decoded += String.fromCharCode(bitSplit(bits, 1));
     decoded += String.fromCharCode(bitSplit(bits, 0));
@@ -72,7 +72,7 @@ function decodeBase64(payload, safe) {
   }
 
   if (block.length) {
-    const bits = parse24bits(block, 6);
+    const bits = parse24bits(block);
     decoded += String.fromCharCode(bitSplit(bits, 2));
     if (block.length > 2) decoded += String.fromCharCode(bitSplit(bits, 1));
     if (block.length > 3) decoded += String.fromCharCode(bitSplit(bits, 0));
