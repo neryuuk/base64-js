@@ -1,36 +1,6 @@
 const BASE64_DICT = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/`;
 const URI_SAFE_DICT = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_`;
 
-function parse24bits(bytes, bits = 8) {
-  if (bits === 8) {
-    return (
-      ((bytes[0] ?? 0) << (bits * 2)) +
-      ((bytes[1] ?? 0) << (bits * 1)) +
-      ((bytes[2] ?? 0) << (bits * 0))
-    );
-  }
-  if (bits === 6) {
-    return (
-      ((bytes[0] ?? 0) << (bits * 3)) +
-      ((bytes[1] ?? 0) << (bits * 2)) +
-      ((bytes[2] ?? 0) << (bits * 1)) +
-      ((bytes[3] ?? 0) << (bits * 0))
-    );
-  }
-}
-
-function bitSplit(bits, count, offset) {
-  return bits >> (count * offset);
-}
-
-function and8bit(bits, offset) {
-  return bitSplit(bits, 8, offset) & 0b11111111;
-}
-
-function and6bit(bits, offset) {
-  return bitSplit(bits, 6, offset) & 0b111111;
-}
-
 function decodeBase64(payload, safe) {
   const DICT = safe ? URI_SAFE_DICT : BASE64_DICT;
   let block = '';
@@ -70,32 +40,42 @@ function decodeBase64(payload, safe) {
 }
 
 function decodeBase64bitwise(payload, safe) {
+  function parse24bits(bytes) {
+    return (
+      ((bytes[0] ?? 0) << (6 * 3)) +
+      ((bytes[1] ?? 0) << (6 * 2)) +
+      ((bytes[2] ?? 0) << (6 * 1)) +
+      ((bytes[3] ?? 0) << (6 * 0))
+    );
+  }
+
+  function bitSplit(bits, offset) {
+    return (bits >> (8 * offset)) & 0b11111111;
+  }
+
   const DICT = safe ? URI_SAFE_DICT : BASE64_DICT;
   const block = [];
   let buff = Buffer.from(payload);
   let decoded = '';
 
   for (let i = 0; i < buff.length; i++) {
-    if (!safe && String.fromCharCode(buff[i]) === '=') continue;
+    if (!safe && buff[i] === 61) continue;
 
-    block.push(DICT.indexOf(buff[i]));
+    block.push(DICT.indexOf(String.fromCharCode(buff[i])));
     if (block.length < 4) continue;
 
     const bits = parse24bits(block, 6);
-    decoded += String.fromCharCode(and8bit(bits, 2));
-    decoded += String.fromCharCode(and8bit(bits, 1));
-    decoded += String.fromCharCode(and8bit(bits, 0));
-    block.pop();
-    block.pop();
-    block.pop();
-    block.pop();
+    decoded += String.fromCharCode(bitSplit(bits, 2));
+    decoded += String.fromCharCode(bitSplit(bits, 1));
+    decoded += String.fromCharCode(bitSplit(bits, 0));
+    block.length = 0;
   }
 
   if (block.length) {
     const bits = parse24bits(block, 6);
-    decoded += String.fromCharCode(and8bit(bits, 2));
-    decoded += String.fromCharCode(and8bit(bits, 1));
-    decoded += String.fromCharCode(and8bit(bits, 0));
+    decoded += String.fromCharCode(bitSplit(bits, 2));
+    if (block.length > 2) decoded += String.fromCharCode(bitSplit(bits, 1));
+    if (block.length > 3) decoded += String.fromCharCode(bitSplit(bits, 0));
   }
 
   return decoded;
