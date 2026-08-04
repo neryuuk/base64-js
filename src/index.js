@@ -102,6 +102,18 @@ function decodeBase64bitwise(payload, safe) {
 }
 
 function encodeBase64(payload, safe = false) {
+  function parse24bits(bytes) {
+    return (
+      ((bytes[0] ?? 0) << (8 * 2)) +
+      ((bytes[1] ?? 0) << (8 * 1)) +
+      ((bytes[2] ?? 0) << (8 * 0))
+    );
+  }
+
+  function bitSplit(bits, offset) {
+    return (bits >> (6 * offset)) & 0b111111;
+  }
+
   const DICT = safe ? URI_SAFE_DICT : BASE64_DICT;
   const block = [];
   let buff = Buffer.from(payload);
@@ -112,21 +124,19 @@ function encodeBase64(payload, safe = false) {
     if (block.length < 3) continue;
 
     const bits = parse24bits(block);
-    encoded += DICT[and6bit(bits, 3)];
-    encoded += DICT[and6bit(bits, 2)];
-    encoded += DICT[and6bit(bits, 1)];
-    encoded += DICT[and6bit(bits, 0)];
-    block.pop();
-    block.pop();
-    block.pop();
+    encoded += DICT[bitSplit(bits, 3)];
+    encoded += DICT[bitSplit(bits, 2)];
+    encoded += DICT[bitSplit(bits, 1)];
+    encoded += DICT[bitSplit(bits, 0)];
+    block.length = 0;
   }
 
   if (block.length) {
     const bits = parse24bits(block);
-    let drain = DICT[and6bit(bits, 3)] + DICT[and6bit(bits, 2)];
+    let drain = DICT[bitSplit(bits, 3)] + DICT[bitSplit(bits, 2)];
 
-    if (block.length > 1) drain += DICT[and6bit(bits, 1)];
-    if (block.length > 2) drain += DICT[and6bit(bits, 0)];
+    if (block.length > 1) drain += DICT[bitSplit(bits, 1)];
+    if (block.length > 2) drain += DICT[bitSplit(bits, 0)];
 
     encoded += safe ? drain : drain.padEnd(4, '=');
   }
