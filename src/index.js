@@ -14,9 +14,10 @@ function decodeBase64old(payload, safe) {
     if (block.length < 24) continue;
 
     const match = block.match(/.{8}/g);
-    decoded += String.fromCharCode(parseInt(match[0], 2));
-    decoded += String.fromCharCode(parseInt(match[1], 2));
-    decoded += String.fromCharCode(parseInt(match[2], 2));
+    decoded +=
+      String.fromCharCode(parseInt(match[0], 2)) +
+      String.fromCharCode(parseInt(match[1], 2)) +
+      String.fromCharCode(parseInt(match[2], 2));
     block = '';
   }
 
@@ -61,21 +62,22 @@ function decodeBase64(payload, safe) {
   for (let i = 0; i < buff.length; i++) {
     if (!safe && buff[i] === 61) continue;
 
-    block.push(DICT.indexOf(String.fromCharCode(buff[i])));
+    block.push(DICT.indexOf(String.fromCodePoint(buff[i])));
     if (block.length < 4) continue;
 
     const bits = parse24bits(block);
-    decoded += String.fromCharCode(bitSplit(bits, 2));
-    decoded += String.fromCharCode(bitSplit(bits, 1));
-    decoded += String.fromCharCode(bitSplit(bits, 0));
+    decoded +=
+      String.fromCodePoint(bitSplit(bits, 2)) +
+      String.fromCodePoint(bitSplit(bits, 1)) +
+      String.fromCodePoint(bitSplit(bits, 0));
     block.length = 0;
   }
 
   if (block.length) {
     const bits = parse24bits(block);
-    decoded += String.fromCharCode(bitSplit(bits, 2));
-    if (block.length > 2) decoded += String.fromCharCode(bitSplit(bits, 1));
-    if (block.length > 3) decoded += String.fromCharCode(bitSplit(bits, 0));
+    decoded += String.fromCodePoint(bitSplit(bits, 2));
+    if (block.length > 2) decoded += String.fromCodePoint(bitSplit(bits, 1));
+    if (block.length > 3) decoded += String.fromCodePoint(bitSplit(bits, 0));
   }
 
   return decoded;
@@ -107,10 +109,11 @@ function encodeBase64(
     if (block.length < 3) continue;
 
     const bits = parse24bits(block);
-    encoded += DICT[bitSplit(bits, 3)];
-    encoded += DICT[bitSplit(bits, 2)];
-    encoded += DICT[bitSplit(bits, 1)];
-    encoded += DICT[bitSplit(bits, 0)];
+    encoded +=
+      DICT[bitSplit(bits, 3)] +
+      DICT[bitSplit(bits, 2)] +
+      DICT[bitSplit(bits, 1)] +
+      DICT[bitSplit(bits, 0)];
     block.length = 0;
   }
 
