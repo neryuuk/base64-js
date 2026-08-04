@@ -81,7 +81,10 @@ function decodeBase64(payload, safe) {
   return decoded;
 }
 
-function encodeBase64(payload, safe = false) {
+function encodeBase64(
+  payload,
+  { encoding, safe } = { encoding: 'utf8', safe: false },
+) {
   function parse24bits(bytes) {
     return (
       ((bytes[0] ?? 0) << (8 * 2)) +
@@ -96,7 +99,7 @@ function encodeBase64(payload, safe = false) {
 
   const DICT = safe ? URI_SAFE_DICT : BASE64_DICT;
   const block = [];
-  let buff = Buffer.from(payload);
+  let buff = Buffer.from(payload, encoding);
   let encoded = '';
 
   for (let i = 0; i < buff.length; i++) {
